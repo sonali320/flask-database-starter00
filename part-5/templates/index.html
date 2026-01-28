@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Part 5 - PostgreSQL/MySQL Config</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #263238; color: #eceff1; }
+        h1 { color: #80cbc4; }
+        .db-info { background: #37474f; padding: 20px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #80cbc4; }
+        .db-info h3 { margin: 0 0 10px 0; color: #80cbc4; }
+        .db-type { display: inline-block; padding: 5px 15px; border-radius: 20px; font-weight: bold; }
+        .db-type.postgresql { background: #336791; }
+        .db-type.mysql { background: #4479a1; }
+        .db-type.sqlite { background: #003b57; }
+        .db-url { font-family: monospace; font-size: 12px; color: #90a4ae; word-break: break-all; margin-top: 10px; }
+        table { border-collapse: collapse; width: 100%; background: #37474f; margin-top: 20px; border-radius: 8px; overflow: hidden; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #455a64; }
+        th { background: #455a64; color: #80cbc4; }
+        .btn { display: inline-block; padding: 10px 20px; text-decoration: none; border-radius: 4px; margin: 5px; }
+        .btn-add { background: #26a69a; color: white; }
+        .btn-delete { background: #ef5350; color: white; }
+        .flash { padding: 15px; margin: 15px 0; border-radius: 4px; }
+        .flash.success { background: #a5d6a7; color: #1b5e20; }
+        .flash.danger { background: #ef9a9a; color: #b71c1c; }
+        .price { color: #81c784; font-weight: bold; }
+        .stock { color: #90a4ae; }
+    </style>
+</head>
+<body>
+    <h1>Product Inventory (Part 5)</h1>
+
+    <div class="db-info">
+        <h3>Current Database:</h3>
+        <span class="db-type {{ db_type.lower() }}">{{ db_type }}</span>
+        <div class="db-url">{{ db_url }}</div>
+        <p style="margin-top: 10px; font-size: 14px;">Change the DATABASE_URL in .env file to switch databases!</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <a href="{{ url_for('add_product') }}" class="btn btn-add">+ Add Product</a>
+
+    {% if products %}
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Description</th>
+            <th>Actions</th>
+        </tr>
+        {% for product in products %}
+        <tr>
+            <td>{{ product.id }}</td>
+            <td>{{ product.name }}</td>
+            <td class="price">${{ "%.2f"|format(product.price) }}</td>
+            <td class="stock">{{ product.stock }} units</td>
+            <td>{{ product.description or '-' }}</td>
+            <td>
+                <a href="{{ url_for('delete_product', id=product.id) }}" class="btn btn-delete"
+                   onclick="return confirm('Delete this product?')">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% else %}
+    <p>No products yet.</p>
+    {% endif %}
+</body>
+</html>
